@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { updateCurrentUserDetails } from "../../services/apiAuth"; // Replace with your actual API function
+import toast from "react-hot-toast";
 
 export function useEditProfileDetails() {
     const { mutate: editProfile, isLoading: editProfileLoading } = useMutation({
@@ -8,10 +9,12 @@ export function useEditProfileDetails() {
             return updateCurrentUserDetails(data); // Ensure updateProfile is defined and handles the API call
         },
         onSuccess: () => {
-            console.log("Profile details updated successfully");
+            toast.success("Profile details updated successfully")
+            // console.log("Profile details updated successfully");
         },
         onError: (error) => {
-            console.error("Error updating profile:", error);
+            toast.error("Error updating profile")
+            // console.error("Error updating profile:", error);
             throw new Error(error.message);
         },
     });

@@ -5,7 +5,8 @@ import {
     httpCreateUser,
     httpHandleLogin,
     httpUserLogout,
-    httpSendConfirmationCode
+    httpSendConfirmationCode,
+    httpVerifyOtpAndUpdatePassword
 } from '../controllers/authControllers.js'
 import { validateEmailConfirmationCode, validateLoginInputs, validateUser, validateUserChangePassword } from '../middleware/validationMiddleware.js';
 
@@ -21,12 +22,14 @@ const apiLimiter = rateLimiter({
 })
 
 // get request for the /auth/login 
-authRouter.get('/login',rateLimiter,validateLoginInputs,httpGetUserLogin)
+authRouter.get('/login',validateLoginInputs,httpGetUserLogin)
 
 // routes and controllers for creating a new user (/auth/signUp)
 authRouter.post('/signUp',validateUser,httpCreateUser)
 
 authRouter.post('/send-otp',validateEmailConfirmationCode,httpSendConfirmationCode)
+
+authRouter.post('/verify-otp',httpVerifyOtpAndUpdatePassword)
 
 
 // authRouter.patch('/change-password',validateUserChangePassword,httpUserChangePassword)

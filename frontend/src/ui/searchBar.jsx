@@ -161,7 +161,7 @@ export default function JobSearchBar() {
   const [workMode, setWorkMode] = useState("");
   const [seniorityLevel, setSeniorLevel] = useState("");
   const [employmentType, setEmploymentType] = useState("");
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState("");
 
   const [searchParams, setSearchParams] = useSearchParams();
   const { JobPosts, jobPostLoading, jobPostError } = useGetAllJobsPost();

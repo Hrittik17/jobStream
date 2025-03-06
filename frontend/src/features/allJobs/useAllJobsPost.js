@@ -14,12 +14,15 @@ import { useSearchParams } from "react-router-dom";
 
 export function useGetAllJobsPost() {
   const [searchParams] = useSearchParams();
-  const queryParams = Object.fromEntries(searchParams.entries());
+  console.log('search params', searchParams);
+  const queryParams = Object.fromEntries(searchParams.entries());  // for the search bar i.e filters
 
+  console.log('query params',queryParams)
   const { data: JobPosts, isLoading: jobPostLoading, error: jobPostError } = useQuery({
     queryKey: ["jobPosts", queryParams],
     queryFn: () => getAllJobsPosts(queryParams),
   });
 
+  console.log('Job Posts', JobPosts);
   return { JobPosts, jobPostLoading, jobPostError };
 }

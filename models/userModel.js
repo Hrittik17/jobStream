@@ -30,11 +30,19 @@ const userSchema = new mongoose.Schema({
     avatarPublicId:{
         type:'string'
     },
+    points:{
+        type:Number,
+        default:10,
+    },
     role:{
         type:'string',
         enum:['user','admin'],
         default:'user',
-    }
+    },
+    confirmationCode:{
+        type:'string'
+    },
+    Contacts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 })
 
 // a instance method to delete the password when we are fetching the current user 

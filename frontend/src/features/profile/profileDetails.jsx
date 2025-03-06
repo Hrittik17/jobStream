@@ -1,12 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Loader from "../../ui/loader";
 import { useCurrentUser } from "../authentication/useCurrentUser";
 import EditProfileDetails from "./editProfileDetails";
-import { useNavigate } from "react-router-dom";
 
 export default function ProfileDetails() {
   const [showEditForm, setShowEditForm] = useState(false);
-  // const navigate = useNavigate()
+  const navigate = useNavigate(); // Initialize useNavigate
   const showForm = () => setShowEditForm(true);
   const { currentUser, currentUserLoading } = useCurrentUser();
 
@@ -14,48 +14,65 @@ export default function ProfileDetails() {
     return <Loader />;
   }
 
-  const { fullName, email, gender, status } = currentUser;
+  const { fullName, email, gender, status, avatar } = currentUser;
 
   return (
-    <div
-      style={{
-        backgroundImage: `url('/profile-details.png')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        minHeight: "100vh", // Ensures it spans the full viewport height
-      }}
-    >
-      <div className="w-full p-6 mb-10 bg-white bg-opacity-80 shadow-md rounded-md border border-gray-300">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">{fullName} Profile Details</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="flex gap-6">
-            <span className="text-gray-600 font-medium text-lg">Full Name:</span>
-            <span className="text-gray-900 text-lg">{fullName}</span>
-          </div>
-          <div className="flex gap-6">
-            <span className="text-gray-600 font-medium text-lg">Email:</span>
-            <span className="text-gray-900 text-lg">{email}</span>
-          </div>
-          <div className="flex gap-6">
-            <span className="text-gray-600 font-medium text-lg">Gender:</span>
-            <span className="text-gray-900 capitalize text-lg">{gender}</span>
-          </div>
-          <div className="flex gap-6">
-            <span className="text-gray-600 font-medium text-lg">Status:</span>
-            <span className="text-gray-900 capitalize text-lg">{status}</span>
-          </div>
-        </div>
-        <div className="flex gap-8 justify-end">
-          <button
-            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md shadow hover:bg-blue-700 transition duration-200"
-            onClick={showForm}
-          >
-            Edit Details
-          </button>
-        </div>
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-200">
+      {/* Back Button */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-semibold text-gray-800">
+          {fullName}'s Profile
+        </h2>
+        <button
+          onClick={() => navigate(-1)} // Go back to the previous page
+          className="px-4 py-2 bg-gray-100 text-gray-800 rounded-md shadow hover:bg-gray-200 transition duration-200"
+        >
+          ← Back
+        </button>
       </div>
-      {showEditForm && <EditProfileDetails />}
+
+      {/* Profile Details */}
+      <div className="flex items-center gap-6 mb-6">
+        <img
+          src={avatar || "/default-avatar.png"}
+          alt="Profile"
+          className="w-24 h-24 rounded-full object-cover shadow-md"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+        <ProfileDetail label="Full Name" value={fullName} />
+        <ProfileDetail label="Email" value={email} />
+        <ProfileDetail label="Gender" value={gender} />
+        <ProfileDetail label="Status" value={status} />
+      </div>
+
+      {/* Edit Button */}
+      <div className="text-right">
+        <button
+          className="px-5 py-2 bg-blue-500 text-white rounded-md font-medium shadow-md hover:bg-blue-600 transition duration-200"
+          onClick={showForm}
+        >
+          Edit Profile
+        </button>
+      </div>
+
+      {/* Edit Form */}
+      {showEditForm && (
+        <div className="mt-6">
+          <EditProfileDetails />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Profile Detail Component
+function ProfileDetail({ label, value }) {
+  return (
+    <div className="flex flex-col">
+      <span className="text-gray-600 font-medium text-sm uppercase">{label}</span>
+      <span className="text-gray-800 text-lg">{value}</span>
     </div>
   );
 }

@@ -1,7 +1,16 @@
 import { useNavigate } from "react-router-dom";
+import { useCurrentUser } from "../features/authentication/useCurrentUser";
+import Loader from "./loader";
+import toast from "react-hot-toast";
 
 export default function HomeLayout() {
     const navigate = useNavigate();
+    const { currentUser, currentUserLoading } = useCurrentUser()
+
+    if (currentUserLoading) {
+        return <Loader />
+    }
+
     return (
         <div className="flex items-center justify-between min-h-screen bg-gray-50 px-8 md:px-16">
             {/* Left Content */}
@@ -20,18 +29,23 @@ export default function HomeLayout() {
 
                 {/* Buttons */}
                 <div className="flex gap-4 mt-4">
-                    <button
-                        className="bg-teal-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-teal-600 transition"
-                        onClick={() => navigate('/signUp')}
-                    >
-                        Register
-                    </button>
-                    <button
-                        className="bg-gray-100 text-gray-700 px-6 py-3 rounded-md font-semibold hover:bg-gray-200 transition"
-                        onClick={() => navigate('/login')}
-                    >
-                        Login
-                    </button>
+                    {!currentUser ? (
+                        <>
+
+                            <button
+                                className="bg-teal-500 text-white px-6 py-3 rounded-md font-semibold hover:bg-teal-600 transition"
+                                onClick={() => navigate('/signUp')}
+                            >
+                                Register
+                            </button>
+                            <button
+                                className="bg-gray-100 text-gray-700 px-6 py-3 rounded-md font-semibold hover:bg-gray-200 transition"
+                                onClick={() => navigate('/login')}
+                            >
+                                Login
+                            </button>
+                        </>
+                    ) : ''}
                 </div>
             </div>
 

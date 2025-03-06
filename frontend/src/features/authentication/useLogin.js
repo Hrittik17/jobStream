@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { userLogin } from "../../services/apiAuth";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 // import { toast } from "react-toastify";
 // import toast from "react-hot-toast";
 
@@ -12,10 +13,12 @@ export function useLogin() {
             return userLogin({ email, password })
         },
         onSuccess: () => {
-            console.log("User successfully logged in")
+            // console.log("User successfully logged in")
+            toast.success('User successfully logged in')
             navigate("/dashboard");
         },
         onError:(error)=>{
+            toast.error(`Failed to login ${error.message}`)
             console.error("Login Error:", error?.message?.data?.message);
         }
     })

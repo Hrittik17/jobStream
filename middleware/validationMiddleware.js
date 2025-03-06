@@ -172,7 +172,7 @@ export const validateUpdateUserDetails = withValidationError([
 export const validateApplicationInputs = withValidationError([
     body("id")
         .notEmpty()
-        .withMessage("Job id is required hehe")
+        .withMessage("Job id is required")
         .custom(async (jobId, { req }) => {
             // Validate if the jobId is a valid ObjectId
             if (!mongoose.Types.ObjectId.isValid(jobId)) {
@@ -235,13 +235,25 @@ export const validateEmailConfirmationCode = withValidationError([
     body('userEmail')
         .notEmpty()
         .withMessage('email is required')
-        // .custom(async (email) => {
-        //     console.log(email)
-        //     const isEmailExists = await User.findOne({ email:userEmail })
-        //     if (!isEmailExists) {
-        //         throw new Error('Invalid email or email doesnt exists')
-        //     }
-        // })
+    // .custom(async (email) => {
+    //     console.log(email)
+    //     const isEmailExists = await User.findOne({ email:userEmail })
+    //     if (!isEmailExists) {
+    //         throw new Error('Invalid email or email doesnt exists')
+    //     }
+    // })
+])
+
+export const validateUserOTP = withValidationError([
+    body('confirmationCode')
+        .notEmpty()
+        .withMessage("Please enter your otp"),
+    body('confirmPassword')
+        .notEmpty()
+        .withMessage("Please enter the password"),
+    body('otpToken')
+    .notEmpty()
+    .withMessage("Otp Token is required")
 ])
 
 

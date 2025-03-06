@@ -1,8 +1,10 @@
 import User from "../models/userModel.js";
 import Job from '../models/jobModel.js';
+import Application from "../models/applicationModel.js";
 import cloudinary from 'cloudinary'
 import fs from 'fs/promises'
 import { hashPassword } from "../utils/passwordUtils.js";
+import mongoose from "mongoose";
 
 // a function to get the current user i.e who is using the app
 export async function httpGetCurrentUser(req, res) {
@@ -122,33 +124,6 @@ export async function httpUpdateUserDetails(req, res) {
     }
 }
 
-// export async function httpUserChangePassword(req, res) {
-//     try {
-//         const { updatedPassword, userEmail } = req.body
-//         const isUserValid = await User.findOne({ _id: req.user.userId })
-//         if (!isUserValid) {
-//             return res.status(404).json({ message: "You are not authenticated." })
-//         }
-
-//         const isUserExists = await User.findOne({ email: userEmail })
-//         if (!isUserExists) {
-//             return res.status(404).json({ message: "User doesn't exist." })
-//         }
-//         // Hash the new password
-//         const hashedPassword = await hashPassword(updatedPassword);
-//         isUserExists.password = hashedPassword;
-
-//         // Save the updated user
-//         await isUserExists.save();
-
-//         res.status(200).json({ message: "Password updated successfully." })
-
-//     } catch (error) {
-//         console.error(error.message)
-//         res.status(500).json({ message: 'Something went wrong while updating user password.' });
-//     }
-// }
-
 
 export async function httpUserChangePassword(req, res) {
     try {
@@ -185,3 +160,68 @@ export async function httpUserChangePassword(req, res) {
         res.status(500).json({ message: 'Something went wrong while updating user password.' });
     }
 }
+
+
+export const httpGetUserMonthlyApplications = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const monthlyApplications = await Application.aggregate([
+            { $match: { userId:new mongoose.Types.ObjectId(userId) } },
+            {
+                $group: {
+                    _id: { $month: "$appliedAt" },
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $sort: { "_id": 1 },
+            },
+        ]);
+
+        const formattedData = monthlyApplications.map((item) => ({
+            date: new Date(2025, item._id - 1).toLocaleString("default", {
+                month: "short",
+            }),
+            count: item.count,
+        }));
+        console.log(formattedData)
+
+        res.status(200).json({ monthlyApplications: formattedData });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
+
+// a function to get a stats on a spedcific job i.e how many jobs application he has recieved in a month
+export const httpGetSpecificJobApplicationsStats = async (req, res) => {
+    try {
+        const { id } = req.params; // Job ID
+
+        const stats = await Application.aggregate([
+            { $match: { jobId: mongoose.Types.ObjectId(id) } }, // Filter by jobId
+            {
+                $group: {
+                    _id: { $month: "$appliedAt" }, // Group by month
+                    count: { $sum: 1 }, // Count applications
+                },
+            },
+            { $sort: { _id: 1 } }, // Sort by month
+        ]);
+
+        // Map month number to month name
+        const monthlyData = stats.map((item) => ({
+            month: new Date(0, item._id - 1).toLocaleString("default", { month: "short" }),
+            count: item.count,
+        }));
+        console.log(monthlyData)
+
+        res.status(200).json({ monthlyData });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

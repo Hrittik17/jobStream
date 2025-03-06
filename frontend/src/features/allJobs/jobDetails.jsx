@@ -19,12 +19,6 @@ export default function JobDetails() {
 
     const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     if (!currentUser) {
-    //         navigate('/Login')
-    //     }
-    // }, [currentUser, navigate])
-
     if (jobPostDetailsLoading && currentUserLoading) {
         return <Loader />;
     }
@@ -211,7 +205,7 @@ export default function JobDetails() {
                             <label htmlFor="jobId">Job Id</label>
                             <input type="text" value={_id} disabled />
                         </div>
-                        <div className="mt-4 flex justify-end">
+                        <div className="mt-4 flex gap-6 justify-end">
                             <button
                                 onClick={() => navigate(-1)}
                                 className="bg-blue-500 text-white font-semibold py-3 px-8 rounded-md hover:bg-blue-600 transition duration-300"

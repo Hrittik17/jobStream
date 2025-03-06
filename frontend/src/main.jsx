@@ -7,7 +7,7 @@ import App from './App.jsx'
 // import 'react-toastify/dist/ReactToastify.css'
 // import 'react-toastify/ReactToastify.css'
 // import { ToastContainer } from 'react-toastify'
-// import {Toaster} from 'react-hot-toast'
+import {Toaster} from 'react-hot-toast'
 import './index.css'
 import { ErrorBoundary } from 'react-error-boundary'
 import ErrorFallback from './ui/errorFallback.jsx'
@@ -33,7 +33,7 @@ createRoot(document.getElementById('root')).render(
         <BrowserRouter>
           <SettingProvider>
             <App />
-            {/* <Toaster
+            <Toaster
               position="top-center"
               gutter={12}
               containerStyle={{ margin: '8px' }}
@@ -42,7 +42,7 @@ createRoot(document.getElementById('root')).render(
                 error: { duration: 5000 },
                 style: { fontSize: '16px', maxWidth: '500px', padding: '16px 24px' },
               }}
-            /> */}
+            />
             {/* <ToastContainer position='top-center' /> */}
           </SettingProvider>
         </BrowserRouter>

@@ -41,7 +41,8 @@ export async function getAllJobs() {
 
 export async function getAllJobsPosts(params) {
     try {
-        const res = await axios.get(`${Base_Url}/all-jobs`, { params, withCredentials: true });
+        const res = await axios.get(`${Base_Url}/all-jobs`, {params},{withCredentials: true });
+        console.log("response Data",res.data)
         return res.data;
     } catch (error) {
         console.error("Failed to get all jobs posts", error);
@@ -141,3 +142,15 @@ export async function postApplyJob(id, formData) {
         throw new Error(error.response?.data?.message || error.message);
     }
 }
+
+export async function getAllShortlistedCandidates(id){
+    try{
+        const res = await axios.get(`${Base_Url}/jobs/${id}/all-applications/shortlisted-candidates`,{withCredentials:true})
+        return res.data
+    }catch(error){
+        console.error('dont found shortlisted candidated',error.message)
+        throw new Error(error)
+    }
+}
+
+

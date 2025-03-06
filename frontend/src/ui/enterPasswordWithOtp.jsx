@@ -1,12 +1,25 @@
 import { useForm } from "react-hook-form";
+import { useVerifyOTP } from "../features/forgetPassword/useVerifyOTP";
 
 export default function EnterPasswordWithOtp() {
   const { register, formState, handleSubmit, getValues, reset } = useForm();
   const { errors } = formState;
+  const {VerifyOTP,verifyOTPLoading} = useVerifyOTP()
 
   function submitCodeWithPassword(data) {
-    console.log(data);
-  }
+    const { password, confirmationCode } = data;
+    VerifyOTP(
+        { confirmationCode, newPassword: password },
+        {
+            onSuccess: () => {
+                console.log("Password successfully updated");
+            },
+            onError: (error) => {
+                console.error("Error updating password:", error?.response?.data?.message || error.message);
+            }
+        }
+    );
+}
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

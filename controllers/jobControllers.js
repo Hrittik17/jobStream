@@ -23,12 +23,12 @@ export async function httpGetAllJobs(req, res) {
         //     const recruiterJobs = await Job.find({createdBy:req.user.userId})
         //     return res.status(200).json(recruiterJobs)
         // }
-        const jobs = await Job.find({createdBy:req.user.userId})  //{createdBy:req.user.userId}
-        if(!jobs){
-            return res.status(404).json({message: "Job not found"})
+        const jobs = await Job.find({ createdBy: req.user.userId })  //{createdBy:req.user.userId}
+        if (!jobs) {
+            return res.status(404).json({ message: "Job not found" })
         }
-        if(jobs.length === 0){
-            return res.json({message:"No job found"})
+        if (jobs.length === 0) {
+            return res.json({ message: "No job found" })
         }
         res.status(200).json(jobs);
     } catch (err) {
@@ -96,7 +96,7 @@ export async function httpDeleteJob(req, res) {
 //         // if(!search) return
 //         const searchObject = {}
 //         if(search){
-//             searchObject.$or =[{position:{$regex:search,$options:'i'}},{location:{$regex:search,$options:'i'}},{employmentType:{$regex:search,$options:'i'}},{seniorityLevel:{$regex:search,$options:'i'}},{workMode:{$regex:search,$options:'i'}}]
+//             searchObject.$and =[{position:{$regex:search,$options:'i'}},{location:{$regex:search,$options:'i'}},{employmentType:{$regex:search,$options:'i'}},{seniorityLevel:{$regex:search,$options:'i'}},{workMode:{$regex:search,$options:'i'}}]
 //         }
 //         const sortOptions ={
 //             newest:'createdAt',
@@ -146,19 +146,42 @@ export async function httpGetSingleJobPostsDetails(req, res) {
 
 export async function httpGetAllJobsPost(req, res) {
     try {
-        const { search, sort } = req.query;
+        const { location, position, sort, workMode, seniorityLevel, employmentType } = req.query;
+        // console.log("request so", req)
 
         // Build search filter
         const searchObject = {};
-        if (search) {
-            searchObject.$or = [
-                { position: { $regex: search, $options: 'i' } },
-                { location: { $regex: location, $options: 'i' } },
-                { employmentType: { $regex: employmentType, $options: 'i' } },
-                { seniorityLevel: { $regex: seniorityLevel, $options: 'i' } },
-                { workMode: { $regex: workMode, $options: 'i' } },
-            ];
+
+        if (location || position || workMode || seniorityLevel || employmentType) 
+            {
+                searchObject.$and = []
+            };
+
+        if (workMode) {
+            searchObject.$and.push({ workMode: { $regex: workMode, $options: 'i' } });
         }
+        if (seniorityLevel) {
+            searchObject.$and.push({ seniorityLevel: { $regex: seniorityLevel, $options: 'i' } });
+        }
+        if (employmentType) {
+            searchObject.$and.push({ employmentType: { $regex: employmentType, $options: 'i' } });
+        }
+        if (sort) {
+            searchObject.$and.push({ sort: { $regex: sort, $options: 'i' } });
+        }
+        if (location) {
+            searchObject.$and.push({ location: { $regex: location, $options: 'i' } });
+        }
+        if (position) {
+            console.log('position', position);
+            searchObject.$and.push({ positionTitle: { $regex: position, $options: 'i' } });
+        }
+
+        // // If no valid search criteria are provided, avoid an empty $and array.
+        // if (!searchObject.$and?.length) {
+        //     delete searchObject.$and;
+        // }
+
 
         // Sorting logic
         const sortOptions = {
@@ -175,6 +198,7 @@ export async function httpGetAllJobsPost(req, res) {
         const skip = (page - 1) * limit;
 
         // Fetch jobs and total count
+        console.log("search object", searchObject)
         const allJobs = await Job.find(searchObject).sort(sortKey)    //.skip(skip).limit(limit);
         const totalJobs = await Job.countDocuments(searchObject);
         const numberOfPages = Math.ceil(totalJobs / limit);
@@ -187,8 +211,8 @@ export async function httpGetAllJobsPost(req, res) {
         // Send response
         res.status(200).json({
             totalJobs,
-            numberOfPages,
-            currentPage: page,
+            // numberOfPages,
+            // currentPage: page,
             allJobs,
         });
     } catch (error) {
@@ -204,38 +228,39 @@ export function httpNotFoundPage(req, res) {
 }
 
 // to get the jobs stats by the users who created it 
-export async function httpGetJobsStats(req,res){
+export async function httpGetJobsStats(req, res) {
     let stats = await Job.aggregate([
-        {$match:{createdBy:new mongoose.Types.ObjectId(req.user.userId)}}, // it will return all the jobs created by the user
-        {$group:{_id:'$applicationStatus',count:{$sum:1}}}  // it will group the jobs based on their status
+        { $match: { createdBy: new mongoose.Types.ObjectId(req.user.userId) } }, // it will return all the jobs created by the user
+        { $group: { _id: '$applicationStatus', count: { $sum: 1 } } }  // it will group the jobs based on their status
     ])
     console.log(stats)
 
 
-    stats = stats.reduce((acc,curr)=>{   // just looping through values
-        const {_id,count} = curr
+    stats = stats.reduce((acc, curr) => {   // just looping through values
+        const { _id, count } = curr
         acc[_id] = count;
         return acc
-    },{})
+    }, {})
 
     let monthlyApplications = await Job.aggregate([
-        {$match:{createdBy:new mongoose.Types.ObjectId(req.user.userId)}},
-        {$group:{
-            _id:{year:{$year:'$createdAt'},month:{$month:'$createdAt'}},
-            count:{$sum:1},
+        { $match: { createdBy: new mongoose.Types.ObjectId(req.user.userId) } },
+        {
+            $group: {
+                _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+                count: { $sum: 1 },
+            },
         },
-    },
-    {$sort:{'_id.year':-1,'_id.month':-1}},
-    {$limit:4},
+        { $sort: { '_id.year': -1, '_id.month': -1 } },
+        { $limit: 4 },
     ])
 
-    monthlyApplications = monthlyApplications.map((items)=>{
-        const {_id:{year,month},count} = items
+    monthlyApplications = monthlyApplications.map((items) => {
+        const { _id: { year, month }, count } = items
 
         const date = day().month(month - 1).year(year).format("MMM,YY")
-        return {date,count}
+        return { date, count }
 
     }).reverse()
-    
-    res.status(200).json({stats,monthlyApplications})
+
+    res.status(200).json({ stats, monthlyApplications })
 } 
